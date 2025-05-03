@@ -14,11 +14,19 @@
     button {
       font-size: 1.2rem;
       padding: 0.75rem 1.5rem;
+      margin-top: 1rem;
       background-color: #ff69b4;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
+    }
+    #preview {
+      margin-top: 1rem;
+      max-width: 100%;
+      height: auto;
+      display: none;
+      border-radius: 12px;
     }
   </style>
 </head>
@@ -36,32 +44,56 @@
 
   <button id="cameraButton">📷 Jetzt Foto machen</button>
 
+  <div>
+    <img id="preview" alt="Foto-Vorschau" />
+    <br />
+    <button id="uploadButton" style="display: none;">⬆️ Hochladen</button>
+  </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const photoInput = document.getElementById("photoInput");
       const cameraButton = document.getElementById("cameraButton");
+      const preview = document.getElementById("preview");
+      const uploadButton = document.getElementById("uploadButton");
+      let selectedFile = null;
 
-      // Stelle sicher, dass UploadClient korrekt geladen wurde
       const uploadClient = new Bytescale.UploadClient({
-        apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs", // <-- Dein API-Key
+        apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs",
       });
 
       cameraButton.addEventListener("click", () => {
-        photoInput.click(); // Öffnet Kamera
+        photoInput.click();
       });
 
-      photoInput.addEventListener("change", async () => {
+      photoInput.addEventListener("change", () => {
         const file = photoInput.files[0];
-        if (!file) {
-          alert("Kein Bild ausgewählt.");
+        if (file) {
+          selectedFile = file;
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            preview.src = e.target.result;
+            preview.style.display = "block";
+            uploadButton.style.display = "inline-block";
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      uploadButton.addEventListener("click", async () => {
+        if (!selectedFile) {
+          alert("Kein Bild zum Hochladen ausgewählt.");
           return;
         }
 
         try {
-          // Upload des Bilds zu Bytescale
-          const result = await uploadClient.uploadFile(file);
+          const result = await uploadClient.uploadFile(selectedFile);
           alert("Foto erfolgreich hochgeladen! 🎉");
-          console.log("URL zum Bild:", result.fileUrl);
+          console.log("Bild-URL:", result.fileUrl);
+          // Reset nach Upload
+          preview.style.display = "none";
+          uploadButton.style.display = "none";
+          selectedFile = null;
         } catch (err) {
           console.error("Fehler beim Hochladen:", err);
           alert("Fehler beim Hochladen: " + err.message);
@@ -71,3 +103,4 @@
   </script>
 </body>
 </html>
+``
