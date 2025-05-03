@@ -1,46 +1,42 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Foto für das Brautpaar</title>
-  <script src="https://js.bytescale.com/sdk/v3"></script>
-</head>
-<body>
-  <h2>Knips deinen Schnappschuss</h2>
-  <p>Wir sammeln alle Bilder für das Brautpaar. Danke fürs Mitmachen.</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Foto für das Brautpaar</title>
+    <script src="https://js.bytescale.com/upload-file.min.js"></script>
+  </head>
+  <body>
+    <h2>Knips deinen Schnappschuss</h2>
+    <p>Wir sammeln alle Bilder für das Brautpaar. Danke fürs Mitmachen.</p>
 
-  <input type="file" accept="image/*" capture="environment" id="photoInput" />
-  <br><br>
-  <button id="uploadButton">Hochladen</button>
+    <input type="file" accept="image/*" capture="environment" id="photoInput" />
+    <br /><br />
+    <button id="uploadButton">Hochladen</button>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const uploadClient = new window.Bytescale.UploadClient({
-        apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs" // oder dein echter API-Key
-      });
-
-      const uploadButton = document.getElementById("uploadButton");
-      uploadButton.addEventListener("click", async () => {
-        const fileInput = document.getElementById("photoInput");
-
-        if (fileInput.files.length === 0) {
+    <script>
+      document.getElementById("uploadButton").addEventListener("click", async () => {
+        const input = document.getElementById("photoInput");
+        if (!input.files || input.files.length === 0) {
           alert("Bitte nimm zuerst ein Foto auf.");
           return;
         }
 
-        const file = fileInput.files[0];
+        const file = input.files[0];
 
         try {
-          const { fileUrl } = await uploadClient.uploadFile(file);
+          const uploadResult = await window.uploadFile({
+            accountId: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs", // Oder dein eigener Bytescale Account-ID/API-Key
+            file,
+          });
+
           alert("Foto erfolgreich hochgeladen!");
-          console.log("URL:", fileUrl);
-        } catch (error) {
-          alert("Fehler beim Hochladen: " + error.message);
-          console.error(error);
+          console.log("Hochgeladen zu:", uploadResult.fileUrl);
+        } catch (err) {
+          console.error(err);
+          alert("Fehler beim Hochladen: " + err.message);
         }
       });
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
