@@ -8,25 +8,24 @@
   <style>
     body {
       font-family: sans-serif;
-      padding: 2rem;
       text-align: center;
+      padding: 2rem;
+    }
+    video, canvas, img {
+      width: 100%;
+      max-width: 400px;
+      margin-top: 1rem;
+      border-radius: 12px;
     }
     button {
-      font-size: 1.2rem;
       padding: 0.75rem 1.5rem;
-      margin-top: 1rem;
+      font-size: 1.2rem;
+      margin: 1rem;
+      border: none;
       background-color: #ff69b4;
       color: white;
-      border: none;
       border-radius: 8px;
       cursor: pointer;
-    }
-    #preview {
-      margin-top: 1rem;
-      max-width: 100%;
-      height: auto;
-      display: none;
-      border-radius: 12px;
     }
   </style>
 </head>
@@ -34,74 +33,80 @@
   <h2>Knips deinen Schnappschuss</h2>
   <p>Wir sammeln alle Bilder für das Brautpaar. Danke fürs Mitmachen.</p>
 
-  <input
-    id="photoInput"
-    type="file"
-    accept="image/*"
-    capture="environment"
-    style="display: none;"
-  />
+  <video id="video" autoplay playsinline></video>
+  <br />
+  <button id="snap">📸 Foto aufnehmen</button>
 
-  <button id="cameraButton">📷 Jetzt Foto machen</button>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <img id="preview" alt="Foto-Vorschau" style="display:none;" />
 
-  <div>
-    <img id="preview" alt="Foto-Vorschau" />
-    <br />
-    <button id="uploadButton" style="display: none;">⬆️ Hochladen</button>
-  </div>
+  <br />
+  <button id="upload" style="display:none;">⬆️ Hochladen</button>
 
   <script>
-    const photoInput = document.getElementById("photoInput");
-    const cameraButton = document.getElementById("cameraButton");
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
     const preview = document.getElementById("preview");
-    const uploadButton = document.getElementById("uploadButton");
-    let selectedFile = null;
+    const snap = document.getElementById("snap");
+    const upload = document.getElementById("upload");
 
-    const uploadClient = new Bytescale.UploadClient({
-      apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs",
-    });
+    let capturedBlob = null;
 
-    // Wenn Nutzer auf den Button klickt → Datei-Auswahl (Kamera) öffnen
-    cameraButton.addEventListener("click", () => {
-      photoInput.click();
-    });
-
-    // Wenn Datei ausgewählt wurde (nach Kamera), zeige Vorschau
-    photoInput.addEventListener("change", () => {
-      const file = photoInput.files[0];
-      if (file) {
-        selectedFile = file;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          preview.src = e.target.result;
-          preview.style.display = "block";
-          uploadButton.style.display = "inline-block";
-        };
-        reader.readAsDataURL(file);
+    // Starte Kamera
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+          audio: false
+        });
+        video.srcObject = stream;
+      } catch (err) {
+        alert("Kamera konnte nicht geöffnet werden: " + err.message);
       }
+    }
+
+    // Foto aufnehmen
+    snap.addEventListener("click", () => {
+      const context = canvas.getContext("2d");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob((blob) => {
+        capturedBlob = blob;
+        preview.src = URL.createObjectURL(blob);
+        preview.style.display = "block";
+        upload.style.display = "inline-block";
+      }, "image/jpeg", 0.95);
     });
 
-    // Wenn auf "Hochladen" geklickt wird → Upload zu Bytescale
-    uploadButton.addEventListener("click", async () => {
-      if (!selectedFile) {
-        alert("Kein Bild ausgewählt.");
+    // Hochladen zu Bytescale
+    upload.addEventListener("click", async () => {
+      if (!capturedBlob) {
+        alert("Kein Foto vorhanden!");
         return;
       }
 
+      const uploadClient = new Bytescale.UploadClient({
+        apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs",
+      });
+
       try {
-        const result = await uploadClient.uploadFile(selectedFile);
-        alert("Foto erfolgreich hochgeladen! 🎉");
+        const result = await uploadClient.uploadFile({
+          data: capturedBlob,
+          mime: "image/jpeg",
+          originalFileName: "foto.jpg",
+        });
+        alert("Foto erfolgreich hochgeladen!");
         console.log("Bild-URL:", result.fileUrl);
-        // Rücksetzen
-        preview.style.display = "none";
-        uploadButton.style.display = "none";
-        selectedFile = null;
-        photoInput.value = "";
       } catch (err) {
-        console.error("Fehler beim Hochladen:", err);
+        console.error(err);
         alert("Fehler beim Hochladen: " + err.message);
       }
     });
+
+    // Kamera beim Laden starten
+    window.addEventListener("DOMContentLoaded", startCamera);
   </script>
 </body>
 </html>
