@@ -1,54 +1,53 @@
 <!DOCTYPE html>
 <html lang="de">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Foto für das Brautpaar</title>
-    <script src="https://js.bytescale.com/sdk/v3.js"></script>
-    <style>
-      body {
-        font-family: sans-serif;
-        padding: 2rem;
-        text-align: center;
-      }
-      button {
-        font-size: 1.2rem;
-        padding: 0.75rem 1.5rem;
-        background-color: #ff69b4;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-      }
-    </style>
-  </head>
-  <body>
-    <h2>Knips deinen Schnappschuss</h2>
-    <p>Wir sammeln alle Bilder für das Brautpaar. Danke fürs Mitmachen.</p>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foto für das Brautpaar</title>
+  <script src="https://js.bytescale.com/sdk/v3.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      text-align: center;
+    }
+    button {
+      font-size: 1.2rem;
+      padding: 0.75rem 1.5rem;
+      background-color: #ff69b4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>Knips deinen Schnappschuss</h2>
+  <p>Wir sammeln alle Bilder für das Brautpaar. Danke fürs Mitmachen.</p>
 
-    <!-- Versteckter Datei-Input, der die Kamera öffnet -->
-    <input
-      type="file"
-      accept="image/*"
-      capture="environment"
-      id="photoInput"
-      style="display: none"
-    />
+  <!-- Datei-Input (nicht versteckt) zum Debuggen -->
+  <input
+    id="photoInput"
+    type="file"
+    accept="image/*"
+    capture="environment"
+    style="display: none"
+  />
 
-    <button id="cameraButton">📷 Jetzt Foto machen</button>
+  <button id="cameraButton">📷 Jetzt Foto machen</button>
 
-    <script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
       const input = document.getElementById("photoInput");
       const button = document.getElementById("cameraButton");
 
-      const client = new Bytescale.UploadClient({
-        apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs", // Dein API-Key
-      });
-
+      // Klick auf Button → Dateiinput öffnen
       button.addEventListener("click", () => {
-        input.click(); // Öffnet die Kamera
+        input.click();
       });
 
+      // Wenn ein Bild gewählt wurde
       input.addEventListener("change", async () => {
         if (!input.files || input.files.length === 0) {
           alert("Kein Bild ausgewählt.");
@@ -57,15 +56,20 @@
 
         const file = input.files[0];
 
+        const client = new Bytescale.UploadClient({
+          apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs",
+        });
+
         try {
           const result = await client.uploadFile(file);
-          alert("Foto erfolgreich hochgeladen! 🙌");
-          console.log("Upload URL:", result.fileUrl);
+          alert("Foto erfolgreich hochgeladen! 🎉");
+          console.log("Bild-URL:", result.fileUrl);
         } catch (err) {
           console.error(err);
           alert("Fehler beim Hochladen: " + err.message);
         }
       });
-    </script>
-  </body>
+    });
+  </script>
+</body>
 </html>
