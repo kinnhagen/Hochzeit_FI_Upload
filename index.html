@@ -12,31 +12,33 @@
 
   <input type="file" accept="image/*" capture="environment" id="photoInput" />
   <br><br>
-  <button onclick="uploadImage()">Hochladen</button>
+  <button id="uploadButton">Hochladen</button>
 
   <script>
-    const client = new Bytescale.UploadClient({
-      apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs", // Verwende hier deinen eigenen API-Schlüssel für echte Nutzung
+    window.addEventListener("DOMContentLoaded", () => {
+      const client = new Bytescale.UploadClient({
+        apiKey: "free", // Ersetze ggf. durch deinen API-Key
+      });
+
+      document.getElementById("uploadButton").addEventListener("click", async () => {
+        const input = document.getElementById("photoInput");
+        if (!input.files.length) {
+          alert("Bitte nimm zuerst ein Foto auf.");
+          return;
+        }
+
+        const file = input.files[0];
+
+        try {
+          const { fileUrl } = await client.uploadFile(file);
+          alert("Foto erfolgreich hochgeladen!");
+          console.log("URL:", fileUrl);
+        } catch (error) {
+          alert("Fehler beim Hochladen: " + error.message);
+          console.error(error);
+        }
+      });
     });
-
-    async function uploadImage() {
-      const input = document.getElementById("photoInput");
-      if (!input.files.length) {
-        alert("Bitte nimm zuerst ein Foto auf.");
-        return;
-      }
-
-      const file = input.files[0];
-
-      try {
-        const { fileUrl } = await client.uploadFile(file);
-        alert("Foto erfolgreich hochgeladen!");
-        console.log("URL:", fileUrl);
-      } catch (error) {
-        alert("Fehler beim Hochladen: " + error.message);
-        console.error(error);
-      }
-    }
   </script>
 </body>
 </html>
