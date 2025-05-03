@@ -1,41 +1,43 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hochzeitsfoto hochladen</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 2rem;
-    }
-    input, button {
-      margin-top: 2rem;
-      font-size: 1.2rem;
-    }
-  </style>
+  <script src="https://js.bytescale.com/upload-widget/v4"></script>
 </head>
 <body>
   <h1>Knips deinen Schnappschuss</h1>
-  <p>Wir sammeln alle Bilder für das Brautpaar.<br>Danke fürs Mitmachen.</p>
-
-  <input id="cameraInput" type="file" accept="image/*" capture="environment">
-
-  <br><br>
-  <button onclick="upload()">Bild hochladen</button>
+  <p>Wir sammeln alle Bilder für das Brautpaar. Danke fürs Mitmachen.</p>
+  <button id="upload-button">Foto aufnehmen & hochladen</button>
 
   <script>
-    function upload() {
-      const input = document.getElementById('cameraInput');
-      if (input.files.length === 0) {
-        alert('Bitte zuerst ein Foto aufnehmen.');
-        return;
+    const options = {
+      apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs", // Ersetze durch deinen eigenen API-Schlüssel, falls vorhanden
+      maxFileCount: 1,
+      mimeTypes: ["image/jpeg", "image/png"],
+      editor: {
+        images: {
+          crop: false
+        }
+      },
+      styles: {
+        colors: {
+          primary: "#ff69b4" // Optional: Passe die Farbe an
+        }
       }
+    };
 
-      // Leitet weiter zur Dropbox Uploadseite
-      window.location.href = "https://www.dropbox.com/request/w6Lv3v7JQin5DQkCV5Qq";
-    }
+    document.getElementById("upload-button").addEventListener("click", () => {
+      Bytescale.UploadWidget.open(options).then(
+        files => {
+          alert("Foto erfolgreich hochgeladen!");
+        },
+        error => {
+          alert("Fehler beim Hochladen: " + error);
+        }
+      );
+    });
   </script>
 </body>
 </html>
