@@ -1,44 +1,48 @@
 <!DOCTYPE html>
 <html lang="de">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Foto für das Brautpaar</title>
-    <script src="https://js.bytescale.com/sdk/v3.js"></script> <!-- Die korrekte API-Datei -->
-  </head>
-  <body>
-    <h2>Knips deinen Schnappschuss</h2>
-    <p>Wir sammeln alle Bilder für das Brautpaar. Danke fürs Mitmachen.</p>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foto für das Brautpaar</title>
+  <script src="https://js.bytescale.com/upload-widget/v4"></script>
+</head>
+<body>
+  <h2>Knips deinen Schnappschuss</h2>
+  <p>Wir sammeln alle Bilder für das Brautpaar. Danke fürs Mitmachen.</p>
 
-    <input type="file" accept="image/*" capture="environment" id="photoInput" />
-    <br /><br />
-    <button id="uploadButton">Hochladen</button>
+  <button id="uploadButton">📸 Jetzt Foto machen & hochladen</button>
 
-    <script>
-      document.getElementById("uploadButton").addEventListener("click", async () => {
-        const input = document.getElementById("photoInput");
-        if (!input.files || input.files.length === 0) {
-          alert("Bitte nimm zuerst ein Foto auf.");
-          return;
+  <script>
+    const options = {
+      apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs", // Dein öffentlicher Bytescale API-Key
+      maxFileCount: 1,
+      mimeTypes: ["image/*"],
+      editor: { images: { crop: false } }, // Kein Zuschneiden nötig
+      showFinishButton: false, // gleich hochladen
+      styles: {
+        colors: {
+          primary: "#ff69b4", // z.B. Hochzeitsfarbe :-)
+        },
+      },
+    };
+
+    document.getElementById("uploadButton").addEventListener("click", () => {
+      Bytescale.UploadWidget.open(options).then(
+        files => {
+          const fileUrls = files.map(x => x.fileUrl);
+          if (fileUrls.length > 0) {
+            alert("Foto erfolgreich hochgeladen! 🙌");
+            console.log("URL:", fileUrls[0]);
+          } else {
+            alert("Kein Foto ausgewählt.");
+          }
+        },
+        error => {
+          console.error(error);
+          alert("Fehler beim Hochladen: " + error.message);
         }
-
-        const file = input.files[0];
-
-        // Erstelle einen UploadClient mit deinem API-Key
-        const client = new Bytescale.UploadClient({
-          apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs", // Hier kannst du deinen API-Schlüssel eintragen
-        });
-
-        try {
-          // Hochladen des Bildes
-          const uploadResult = await client.uploadFile(file);
-          alert("Foto erfolgreich hochgeladen!");
-          console.log("Hochgeladen zu:", uploadResult.fileUrl);
-        } catch (err) {
-          console.error(err);
-          alert("Fehler beim Hochladen: " + err.message);
-        }
-      });
-    </script>
-  </body>
+      );
+    });
+  </script>
+</body>
 </html>
