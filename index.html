@@ -1,43 +1,41 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hochzeitsfoto hochladen</title>
-  <script src="https://js.bytescale.com/upload-widget/v4"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foto für das Brautpaar</title>
+  <script src="https://js.bytescale.com/sdk/v3"></script>
 </head>
 <body>
-  <h1>Knips deinen Schnappschuss</h1>
+  <h2>Knips deinen Schnappschuss</h2>
   <p>Wir sammeln alle Bilder für das Brautpaar. Danke fürs Mitmachen.</p>
-  <button id="upload-button">Foto aufnehmen & hochladen</button>
+
+  <input type="file" accept="image/*" capture="environment" id="photoInput" />
+  <br><br>
+  <button onclick="uploadImage()">Hochladen</button>
 
   <script>
-    const options = {
-      apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs", // Ersetze durch deinen eigenen API-Schlüssel, falls vorhanden
-      maxFileCount: 1,
-      mimeTypes: ["image/jpeg", "image/png"],
-      editor: {
-        images: {
-          crop: false
-        }
-      },
-      styles: {
-        colors: {
-          primary: "#ff69b4" // Optional: Passe die Farbe an
-        }
+    async function uploadImage() {
+      const input = document.getElementById('photoInput');
+      if (!input.files.length) {
+        alert("Bitte nimm zuerst ein Foto auf.");
+        return;
       }
-    };
 
-    document.getElementById("upload-button").addEventListener("click", () => {
-      Bytescale.UploadWidget.open(options).then(
-        files => {
-          alert("Foto erfolgreich hochgeladen!");
-        },
-        error => {
-          alert("Fehler beim Hochladen: " + error);
-        }
-      );
-    });
+      const file = input.files[0];
+
+      try {
+        const { fileUrl } = await Bytescale.upload({
+          apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs", // oder dein echter API-Key
+          file
+        });
+
+        alert("Foto erfolgreich hochgeladen!");
+        console.log("URL:", fileUrl);
+      } catch (error) {
+        alert("Fehler beim Hochladen: " + error.message);
+      }
+    }
   </script>
 </body>
 </html>
