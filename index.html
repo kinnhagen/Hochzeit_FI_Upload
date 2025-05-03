@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hochzeitsfoto hochladen</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    input, button {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Knips deinen Schnappschuss</h1>
+  <p>Wir sammeln alle Bilder für das Brautpaar.<br>Danke fürs Mitmachen.</p>
+
+  <input id="cameraInput" type="file" accept="image/*" capture="environment">
+
+  <br><br>
+  <button onclick="upload()">Bild hochladen</button>
+
+  <script>
+    function upload() {
+      const input = document.getElementById('cameraInput');
+      if (input.files.length === 0) {
+        alert('Bitte zuerst ein Foto aufnehmen.');
+        return;
+      }
+
+      // Leitet weiter zur Dropbox Uploadseite
+      window.location.href = "https://www.dropbox.com/request/w6Lv3v7JQin5DQkCV5Qq";
+    }
+  </script>
+</body>
+</html>
