@@ -21,11 +21,6 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    #photoInput {
-      opacity: 0;
-      position: absolute;
-      pointer-events: none;
-    }
     #preview {
       margin-top: 1rem;
       max-width: 100%;
@@ -44,6 +39,7 @@
     type="file"
     accept="image/*"
     capture="environment"
+    style="display: none;"
   />
 
   <button id="cameraButton">📷 Jetzt Foto machen</button>
@@ -55,58 +51,56 @@
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const photoInput = document.getElementById("photoInput");
-      const cameraButton = document.getElementById("cameraButton");
-      const preview = document.getElementById("preview");
-      const uploadButton = document.getElementById("uploadButton");
-      let selectedFile = null;
+    const photoInput = document.getElementById("photoInput");
+    const cameraButton = document.getElementById("cameraButton");
+    const preview = document.getElementById("preview");
+    const uploadButton = document.getElementById("uploadButton");
+    let selectedFile = null;
 
-      const uploadClient = new Bytescale.UploadClient({
-        apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs",
-      });
+    const uploadClient = new Bytescale.UploadClient({
+      apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs",
+    });
 
-      // Öffne Kamera bei Klick auf Button
-      cameraButton.addEventListener("click", () => {
-        photoInput.click();
-      });
+    // Wenn Nutzer auf den Button klickt → Datei-Auswahl (Kamera) öffnen
+    cameraButton.addEventListener("click", () => {
+      photoInput.click();
+    });
 
-      // Zeige Vorschau und aktiviere Upload
-      photoInput.addEventListener("change", () => {
-        const file = photoInput.files[0];
-        if (file) {
-          selectedFile = file;
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            preview.src = e.target.result;
-            preview.style.display = "block";
-            uploadButton.style.display = "inline-block";
-          };
-          reader.readAsDataURL(file);
-        }
-      });
+    // Wenn Datei ausgewählt wurde (nach Kamera), zeige Vorschau
+    photoInput.addEventListener("change", () => {
+      const file = photoInput.files[0];
+      if (file) {
+        selectedFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          preview.src = e.target.result;
+          preview.style.display = "block";
+          uploadButton.style.display = "inline-block";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
 
-      // Hochladen des gewählten Bildes
-      uploadButton.addEventListener("click", async () => {
-        if (!selectedFile) {
-          alert("Kein Bild zum Hochladen ausgewählt.");
-          return;
-        }
+    // Wenn auf "Hochladen" geklickt wird → Upload zu Bytescale
+    uploadButton.addEventListener("click", async () => {
+      if (!selectedFile) {
+        alert("Kein Bild ausgewählt.");
+        return;
+      }
 
-        try {
-          const result = await uploadClient.uploadFile(selectedFile);
-          alert("Foto erfolgreich hochgeladen! 🎉");
-          console.log("Bild-URL:", result.fileUrl);
-          // Reset nach Upload
-          preview.style.display = "none";
-          uploadButton.style.display = "none";
-          selectedFile = null;
-          photoInput.value = "";
-        } catch (err) {
-          console.error("Fehler beim Hochladen:", err);
-          alert("Fehler beim Hochladen: " + err.message);
-        }
-      });
+      try {
+        const result = await uploadClient.uploadFile(selectedFile);
+        alert("Foto erfolgreich hochgeladen! 🎉");
+        console.log("Bild-URL:", result.fileUrl);
+        // Rücksetzen
+        preview.style.display = "none";
+        uploadButton.style.display = "none";
+        selectedFile = null;
+        photoInput.value = "";
+      } catch (err) {
+        console.error("Fehler beim Hochladen:", err);
+        alert("Fehler beim Hochladen: " + err.message);
+      }
     });
   </script>
 </body>
