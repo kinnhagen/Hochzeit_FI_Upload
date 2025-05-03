@@ -26,7 +26,6 @@
   <h2>Knips deinen Schnappschuss</h2>
   <p>Wir sammeln alle Bilder für das Brautpaar. Danke fürs Mitmachen.</p>
 
-  <!-- Datei-Input (nicht versteckt) zum Debuggen -->
   <input
     id="photoInput"
     type="file"
@@ -39,33 +38,32 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const input = document.getElementById("photoInput");
-      const button = document.getElementById("cameraButton");
+      const photoInput = document.getElementById("photoInput");
+      const cameraButton = document.getElementById("cameraButton");
 
-      // Klick auf Button → Dateiinput öffnen
-      button.addEventListener("click", () => {
-        input.click();
+      // Stelle sicher, dass UploadClient korrekt geladen wurde
+      const uploadClient = new Bytescale.UploadClient({
+        apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs", // <-- Dein API-Key
       });
 
-      // Wenn ein Bild gewählt wurde
-      input.addEventListener("change", async () => {
-        if (!input.files || input.files.length === 0) {
+      cameraButton.addEventListener("click", () => {
+        photoInput.click(); // Öffnet Kamera
+      });
+
+      photoInput.addEventListener("change", async () => {
+        const file = photoInput.files[0];
+        if (!file) {
           alert("Kein Bild ausgewählt.");
           return;
         }
 
-        const file = input.files[0];
-
-        const client = new Bytescale.UploadClient({
-          apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs",
-        });
-
         try {
-          const result = await client.uploadFile(file);
+          // Upload des Bilds zu Bytescale
+          const result = await uploadClient.uploadFile(file);
           alert("Foto erfolgreich hochgeladen! 🎉");
-          console.log("Bild-URL:", result.fileUrl);
+          console.log("URL zum Bild:", result.fileUrl);
         } catch (err) {
-          console.error(err);
+          console.error("Fehler beim Hochladen:", err);
           alert("Fehler beim Hochladen: " + err.message);
         }
       });
