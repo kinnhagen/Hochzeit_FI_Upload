@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Foto für das Brautpaar</title>
-    <script src="https://js.bytescale.com/upload-file.min.js"></script>
+    <script src="https://js.bytescale.com/sdk/v3.js"></script> <!-- Die korrekte API-Datei -->
   </head>
   <body>
     <h2>Knips deinen Schnappschuss</h2>
@@ -24,12 +24,14 @@
 
         const file = input.files[0];
 
-        try {
-          const uploadResult = await window.uploadFile({
-            accountId: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs", // Oder dein eigener Bytescale Account-ID/API-Key
-            file,
-          });
+        // Erstelle einen UploadClient mit deinem API-Key
+        const client = new Bytescale.UploadClient({
+          apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs", // Hier kannst du deinen API-Schlüssel eintragen
+        });
 
+        try {
+          // Hochladen des Bildes
+          const uploadResult = await client.uploadFile(file);
           alert("Foto erfolgreich hochgeladen!");
           console.log("Hochgeladen zu:", uploadResult.fileUrl);
         } catch (err) {
