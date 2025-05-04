@@ -1,112 +1,73 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Foto für das Brautpaar</title>
-  <script src="https://js.bytescale.com/sdk/v3.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 2rem;
-    }
-    video, canvas, img {
-      width: 100%;
-      max-width: 400px;
-      margin-top: 1rem;
-      border-radius: 12px;
-    }
-    button {
-      padding: 0.75rem 1.5rem;
-      font-size: 1.2rem;
-      margin: 1rem;
-      border: none;
-      background-color: #ff69b4;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-  <h2>Knips deinen Schnappschuss</h2>
-  <p>Wir sammeln alle Bilder für das Brautpaar. Danke fürs Mitmachen.</p>
-
-  <video id="video" autoplay playsinline></video>
-  <br />
-  <button id="snap">📸 Foto aufnehmen</button>
-
-  <canvas id="canvas" style="display:none;"></canvas>
-  <img id="preview" alt="Foto-Vorschau" style="display:none;" />
-
-  <br />
-  <button id="upload" style="display:none;">⬆️ Hochladen</button>
-
-  <script>
-    const video = document.getElementById("video");
-    const canvas = document.getElementById("canvas");
-    const preview = document.getElementById("preview");
-    const snap = document.getElementById("snap");
-    const upload = document.getElementById("upload");
-
-    let capturedBlob = null;
-
-    // Starte Kamera
-    async function startCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-          audio: false
-        });
-        video.srcObject = stream;
-      } catch (err) {
-        alert("Kamera konnte nicht geöffnet werden: " + err.message);
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hochzeitsfoto Upload</title>
+    <script src="https://js.bytescale.com/upload-widget/v4"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        padding: 2rem;
       }
-    }
-
-    // Foto aufnehmen
-    snap.addEventListener("click", () => {
-      const context = canvas.getContext("2d");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      canvas.toBlob((blob) => {
-        capturedBlob = blob;
-        preview.src = URL.createObjectURL(blob);
-        preview.style.display = "block";
-        upload.style.display = "inline-block";
-      }, "image/jpeg", 0.95);
-    });
-
-    // Hochladen zu Bytescale
-    upload.addEventListener("click", async () => {
-      if (!capturedBlob) {
-        alert("Kein Foto vorhanden!");
-        return;
+      #preview {
+        margin-top: 1rem;
+        max-width: 100%;
       }
+      button {
+        margin-top: 1rem;
+        padding: 1rem 2rem;
+        font-size: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Foto für die Hochzeit aufnehmen</h1>
+    <input
+      type="file"
+      accept="image/*"
+      capture="environment"
+      id="fileInput"
+      style="display: none"
+    />
+    <button onclick="document.getElementById('fileInput').click()">Foto aufnehmen</button>
+    <div>
+      <img id="preview" src="" alt="" />
+    </div>
+    <button id="uploadBtn" disabled>Foto hochladen</button>
 
-      const uploadClient = new Bytescale.UploadClient({
-        apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs",
+    <script>
+      let selectedFile = null;
+
+      document.getElementById("fileInput").addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        if (file) {
+          selectedFile = file;
+          document.getElementById("preview").src = URL.createObjectURL(file);
+          document.getElementById("uploadBtn").disabled = false;
+        }
       });
 
-      try {
-        const result = await uploadClient.uploadFile({
-          data: capturedBlob,
-          mime: "image/jpeg",
-          originalFileName: "foto.jpg",
-        });
-        alert("Foto erfolgreich hochgeladen!");
-        console.log("Bild-URL:", result.fileUrl);
-      } catch (err) {
-        console.error(err);
-        alert("Fehler beim Hochladen: " + err.message);
-      }
-    });
+      document.getElementById("uploadBtn").addEventListener("click", function () {
+        if (!selectedFile) return;
 
-    // Kamera beim Laden starten
-    window.addEventListener("DOMContentLoaded", startCamera);
-  </script>
-</body>
+        const options = {
+          apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs",
+          maxFileCount: 1,
+          files: [selectedFile]
+        };
+
+        Bytescale.UploadWidget.open(options).then(
+          (files) => {
+            const url = files[0].fileUrl;
+            alert("Hochgeladenes Foto:\n" + url);
+          },
+          (error) => {
+            alert("Fehler beim Hochladen:\n" + error);
+          }
+        );
+      });
+    </script>
+  </body>
 </html>
