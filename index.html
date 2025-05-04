@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hochzeitsfoto Upload</title>
-    <script src="https://js.bytescale.com/upload-widget/v4"></script>
     <style>
       body {
         font-family: sans-serif;
@@ -49,24 +48,31 @@
         }
       });
 
-      document.getElementById("uploadBtn").addEventListener("click", function () {
+      document.getElementById("uploadBtn").addEventListener("click", async function () {
         if (!selectedFile) return;
 
-        const options = {
-          apiKey: "public_G22nhj578SMdTZRHGLWnGwFh6Kjs",
-          maxFileCount: 1,
-          files: [selectedFile]
-        };
+        const formData = new FormData();
+        formData.append("file", selectedFile);
 
-        Bytescale.UploadWidget.open(options).then(
-          (files) => {
-            const url = files[0].fileUrl;
-            alert("Hochgeladenes Foto:\n" + url);
-          },
-          (error) => {
-            alert("Fehler beim Hochladen:\n" + error);
+        const apiKey = "public_G22nhj578SMdTZRHGLWnGwFh6Kjs";
+        const url = `https://upload.bytescale.com/v2/accounts/G22nhj5/uploads/form`;
+
+        try {
+          const response = await fetch(url + `?apiKey=${apiKey}`, {
+            method: "POST",
+            body: formData
+          });
+
+          const result = await response.json();
+
+          if (result && result.fileUrl) {
+            alert("Foto erfolgreich hochgeladen:\n" + result.fileUrl);
+          } else {
+            alert("Upload fehlgeschlagen.");
           }
-        );
+        } catch (error) {
+          alert("Fehler beim Hochladen:\n" + error.message);
+        }
       });
     </script>
   </body>
